@@ -1,0 +1,15 @@
+fastapi           
+fastapi-cli       
+httpcore         
+httptools         
+httpx            
+Jinja2         
+nltk            
+numpy          
+pandas           
+pip            
+scikit-learn    
+scipy         
+uvicorn 
+pyarrow
+fastparquet
