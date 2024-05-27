@@ -290,7 +290,7 @@ def developer_reviews_analysis(desarrollador: str = Query(default='SCS Software'
 
 
 @app.get('/Recomendacion juego', tags=['GET'])
-def calcular_similitud(id_producto : int):
+def calcular_similitud(id_producto : int=Query(default=761140)):
     """
     Sistema de recomendación por similitud del coseno 
     Ingresando el id de un producto, recibimos 5 juegos recomendados similares al ingresado.
