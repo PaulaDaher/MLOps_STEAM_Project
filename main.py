@@ -290,10 +290,9 @@ def developer_reviews_analysis(desarrollador: str = Query(default='SCS Software'
 
 
 @app.get('/Recomendacion juego', tags=['GET'])
-def calcular_similitud(id_producto : int=Query(default=670290)):
-    
+def calcular_similitud(id_producto : int):
     """
-    Sistema de recomendación por similitud del coseno. 
+    Sistema de recomendación por similitud del coseno 
     Ingresando el id de un producto, recibimos 5 juegos recomendados similares al ingresado.
 
     Parametro
@@ -306,44 +305,33 @@ def calcular_similitud(id_producto : int=Query(default=670290)):
         Devuelve lista con 5 juegos recomendados similares al ingresado
 
     """
-    if id_producto not in recomendacion['content_id'].iloc[:1000].values:
-        return {'Por favor, ingrese otro ID que se encuentre dentro del dataset con que se trabajó en este MVP'}
 
+    # Combina las columnas 'genre', 'tags' y 'specs' en una sola columna
+    recomendacion['combined'] = recomendacion.apply(lambda row: f"{row['genre']}, {row['tags']}, {row['specs']}", axis=1)
 
-
-    # Seleccion de las primeras filas del dataset asi no es tan pesado el calculo
-    recomendacion1 = recomendacion.iloc[:10000]
-
-    product_index = recomendacion1[recomendacion1['content_id'] == id_producto].index[0]
-
-    if product_index is None:
-        return {'No se esncientra un juego con el ID proporcionado, pruebe con otro ID'}
-    
     # Comenzamos con el vectorizado 
     vectorizer = TfidfVectorizer()
-    matrix = vectorizer.fit_transform(recomendacion1['title'])
+    matrix = vectorizer.fit_transform(recomendacion['combined'])
 
-    le = LabelEncoder()
+    product_index = recomendacion[recomendacion['content_id'] == id_producto].index[0]
 
-    # Convertir las categorias a numeros 
-    recomendacion1['genre'] = le.fit_transform(recomendacion1['genre'])
-    recomendacion1['tags'] = le.fit_transform(recomendacion1['tags'])
-    recomendacion1['specs'] = le.fit_transform(recomendacion1['specs'])
+    if product_index is None:
+        return {'No se esncuentra un juego con el ID proporcionado, pruebe con otro ID'}
 
+    product_vector = matrix[product_index]
 
-    # Combinar features
-    features = np.column_stack([matrix.toarray(), recomendacion1['genre'], recomendacion1['tags'], recomendacion1['specs']])
+    # Cambia la forma de product_vector a una matriz 2D
+    product_vector_2d = product_vector.reshape(1, -1)
 
-    # Calcular cosine similarity matrix
-    similarity_matrix = cosine_similarity(features)
+    cosine_similarity_matrix = cosine_similarity(product_vector_2d, matrix)
 
     # Obtenemos la similitud con otros items
-    product_similarities = similarity_matrix[product_index]
+    product_similarities = cosine_similarity_matrix[0]
 
     # Obtenemos los indices de los primeros 5 items mas similares 
     most_similar_products_indices = np.argsort(-product_similarities)[1:6]
 
     # Obtenemos los nombres de los items mas similares
-    most_similar_products = recomendacion1.loc[most_similar_products_indices, 'title']
+    most_similar_products = recomendacion.loc[most_similar_products_indices, 'title']
 
     return most_similar_products
