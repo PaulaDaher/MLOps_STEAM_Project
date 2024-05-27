@@ -39,7 +39,7 @@ recomendacion = pd.read_parquet('recomendacion.parquet')
 @app.get('/Developer', tags=['GET'])
 def developer(desarrollador : str=Query(default='Kotoshiro')):
     """
-    Devuelve cantidad de items y porcentaje de contenido Free por año según desarrollador\n.
+    Devuelve cantidad de items y porcentaje de contenido Free por año según desarrollador.
 
     Parametro
     ---------
@@ -67,12 +67,14 @@ def developer(desarrollador : str=Query(default='Kotoshiro')):
     filter_games['Contenido Free'] = round((filter_games['free_game'] / filter_games['total_items']) * 100, 2)
     
     # Formatear los resultados
-    año = filter_games['release_date'].tolist()
+    anio = filter_games['release_date'].tolist()
     cantidad_items = filter_games['total_items'].tolist()
     cont_free = filter_games['Contenido Free'].tolist()
     
     # Retornar el resultado en el formato solicitado
-    return {'Año': año, 'Cantidad de items': cantidad_items, 'Contenido Free': cont_free}
+    result = [{'Año': anio, 'Cantidad de items': items, 'Contenido Free': free} for anio, items, free in zip(anio, cantidad_items, cont_free)]
+
+    return result
 
 
 
@@ -133,8 +135,6 @@ def userdata(User_id: str = Query(default='MeaTCompany')):
         print(f"Advertencia: Hay más de un valor único en item_count para el usuario {User_id}. Usando el primero.")
     total_items = int(unique_item_count[0]) if len(unique_item_count) > 0 else 0  # Convertir a int nativo de Python
 
-    print(f"Total ítems: {total_items}, Dinero gastado: {total_dinero}")
-
     return {
         'Usuario': usuario,
         'Dinero gastado': round(total_dinero, 2),
@@ -147,10 +147,11 @@ def userdata(User_id: str = Query(default='MeaTCompany')):
 
 
 @app.get('/UserForGenre', tags=['GET'])
-def UserForGenre(genre: str=Query(default='Indie')):
+def UserForGenre(genre: str = Query(default='Indie')):
     
     """
-    Ingresa un género y devuelve el usuario que acumula más horas jugadas para él, y una lista de la acumulación de horas jugadas por año de lanzamiento.\n.
+    Ingresa un género y devuelve el usuario que acumula más horas jugadas para él, 
+    y una lista de la acumulación de horas jugadas por ese usuario para ese genero por año.
     
     Parametro
     ---------
@@ -160,7 +161,7 @@ def UserForGenre(genre: str=Query(default='Indie')):
     Retorna
     -------
         Usuario con más horas jugadas para Género                    
-        Llista de la acumulación de horas jugadas por año de lanzamiento
+        Lista de la acumulación de horas jugadas por año de lanzamiento
 
     """
 
@@ -179,15 +180,18 @@ def UserForGenre(genre: str=Query(default='Indie')):
     # Calcular el usuario con más horas jugadas
     user_playtime = merge_df.groupby('user_id')['playtime_forever'].sum().reset_index()
     max_playtime_user = user_playtime.loc[user_playtime['playtime_forever'].idxmax()]['user_id']
+
+    # Filtrar las filas correspondientes al usuario con más horas jugadas
+    merge_df = merge_df[merge_df['user_id'] == max_playtime_user]
     
     # Agrupar las horas jugadas por año de lanzamiento
     merge_df['release_year'] = pd.to_datetime(merge_df['release_date']).dt.year
-    playtime_por_anio = merge_df.groupby('release_year')['playtime_forever'].sum().reset_index()
+    playtime_por_anio = merge_df.groupby('release_date')['playtime_forever'].sum().reset_index()
     
     # Convertir a la estructura requerida
-    playtime_por_anio_list = playtime_por_anio.to_dict('records')
+    playtime_por_anio_list = [{"Año": row['release_date'], "Horas": row['playtime_forever']} for index, row in playtime_por_anio.iterrows()]
     
-    return {"Usuario con más horas jugadas para Género": max_playtime_user, "Horas jugadas": playtime_por_anio_list}
+    return {f'Usuario con más horas jugadas para género {genre}: {max_playtime_user}, Horas jugadas: {playtime_por_anio_list}'}
 
 
 
@@ -284,7 +288,7 @@ def developer_reviews_analysis(desarrollador: str = Query(default='SCS Software'
     reviews_positivas = int(develop_filter['review_pos'].iloc[0])  # Convertir a int nativo de Python
     reviews_negativas = int(develop_filter['review_neg'].iloc[0])  # Convertir a int nativo de Python
     
-    return {developer: {'reviews positivas': reviews_positivas, 'reviews negativas': reviews_negativas}}
+    return {developer: [f'Negative = {reviews_negativas}', f'Positive = {reviews_positivas}']}
 
 
 
