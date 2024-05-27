@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Query
 import pandas as pd
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import LabelEncoder
 
 
 # Indicamos título y descripción de la API
@@ -29,10 +32,11 @@ df1 = pd.read_parquet('consulta1.parquet')
 games = pd.read_parquet('games.parquet')
 reviews = pd.read_parquet('reviews.parquet')
 items = pd.read_parquet('items.parquet')
+recomendacion = pd.read_parquet('recomendacion.parquet')
 
 
 
-@app.get('/consulta1 - Developer', tags=['GET'])
+@app.get('/Developer', tags=['GET'])
 def developer(desarrollador : str=Query(default='Kotoshiro')):
     """
     Devuelve cantidad de items y porcentaje de contenido Free por año según desarrollador\n.
@@ -75,7 +79,7 @@ def developer(desarrollador : str=Query(default='Kotoshiro')):
 
 
 
-@app.get('/consulta2 - Userdata', tags=['GET'])
+@app.get('/Userdata', tags=['GET'])
 def userdata(User_id: str = Query(default='MeaTCompany')):
     """
     Devuelve la cantidad de dinero gastado por el usuario, el porcentaje de recomendación en base a reviews.recommend y cantidad de items.
@@ -142,7 +146,7 @@ def userdata(User_id: str = Query(default='MeaTCompany')):
 
 
 
-@app.get('/consulta3 - UserForGenre', tags=['GET'])
+@app.get('/UserForGenre', tags=['GET'])
 def UserForGenre(genre: str=Query(default='Indie')):
     
     """
@@ -188,7 +192,7 @@ def UserForGenre(genre: str=Query(default='Indie')):
 
 
 
-@app.get('/consulta4 - BestDeveloperYear', tags=['GET'])
+@app.get('/BestDeveloperYear', tags=['GET'])
 def best_developer_year(year: int=Query(default=2017)):
 
     """
@@ -243,7 +247,7 @@ def best_developer_year(year: int=Query(default=2017)):
 
 
 
-@app.get('/consulta5 - DeveloperReviewsAnalysis', tags=['GET'])
+@app.get('/DeveloperReviewsAnalysis', tags=['GET'])
 def developer_reviews_analysis(desarrollador: str = Query(default='SCS Software')):
     """
     Devuelve la cantidad de reseñas positivas y negativas para el desarrollador ingresado
@@ -281,3 +285,65 @@ def developer_reviews_analysis(desarrollador: str = Query(default='SCS Software'
     reviews_negativas = int(develop_filter['review_neg'].iloc[0])  # Convertir a int nativo de Python
     
     return {developer: {'reviews positivas': reviews_positivas, 'reviews negativas': reviews_negativas}}
+
+
+
+
+@app.get('/Recomendacion juego', tags=['GET'])
+def calcular_similitud(id_producto : int=Query(default=670290)):
+    
+    """
+    Sistema de recomendación por similitud del coseno. 
+    Ingresando el id de un producto, recibimos 5 juegos recomendados similares al ingresado.
+
+    Parametro
+    ---------
+    int
+        id_producto: id del item
+    
+    Retorna
+    -------
+        Devuelve lista con 5 juegos recomendados similares al ingresado
+
+    """
+    if id_producto not in recomendacion['content_id'].iloc[:1000].values:
+        return {'Por favor, ingrese otro ID que se encuentre dentro del dataset con que se trabajó en este MVP'}
+
+
+
+    # Seleccion de las primeras filas del dataset asi no es tan pesado el calculo
+    recomendacion1 = recomendacion.iloc[:10000]
+
+    product_index = recomendacion1[recomendacion1['content_id'] == id_producto].index[0]
+
+    if product_index is None:
+        return {'No se esncientra un juego con el ID proporcionado, pruebe con otro ID'}
+    
+    # Comenzamos con el vectorizado 
+    vectorizer = TfidfVectorizer()
+    matrix = vectorizer.fit_transform(recomendacion1['title'])
+
+    le = LabelEncoder()
+
+    # Convertir las categorias a numeros 
+    recomendacion1['genre'] = le.fit_transform(recomendacion1['genre'])
+    recomendacion1['tags'] = le.fit_transform(recomendacion1['tags'])
+    recomendacion1['specs'] = le.fit_transform(recomendacion1['specs'])
+
+
+    # Combinar features
+    features = np.column_stack([matrix.toarray(), recomendacion1['genre'], recomendacion1['tags'], recomendacion1['specs']])
+
+    # Calcular cosine similarity matrix
+    similarity_matrix = cosine_similarity(features)
+
+    # Obtenemos la similitud con otros items
+    product_similarities = similarity_matrix[product_index]
+
+    # Obtenemos los indices de los primeros 5 items mas similares 
+    most_similar_products_indices = np.argsort(-product_similarities)[1:6]
+
+    # Obtenemos los nombres de los items mas similares
+    most_similar_products = recomendacion1.loc[most_similar_products_indices, 'title']
+
+    return most_similar_products
