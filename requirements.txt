@@ -12,5 +12,3 @@ scipy
 uvicorn 
 pyarrow
 fastparquet
-sklearn.feature_extraction.text
-sklearn.metrics.pairwise
