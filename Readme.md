@@ -97,7 +97,7 @@ Se creó un video demostrando el funcionamiento de las consultas de la API y el 
 # <h3 align=left>**`API Y VIDEO`**</h3>
 ### Para más detalles, puedes consultar el código y los notebooks en este repositorio. Además, puedes acceder a la API y ver el video de demostración aquí:
 ### [Acceder a la API](https://proyecto-mlops-steam-4gux.onrender.com)
-### Ver video 
+### [Ver video](https://drive.google.com/drive/u/0/folders/1QQB0huSYZECBoJL1wp-4G3Q5RqbGJpaG) 
 
 
 
