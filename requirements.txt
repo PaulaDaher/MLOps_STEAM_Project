@@ -12,3 +12,4 @@ scipy
 uvicorn 
 pyarrow
 fastparquet
+nltk
