@@ -1,17 +1,15 @@
 
-
-
 # <h1 align=left> MACHINE LEARNING OPERATIONS (MLOps) </h1>
 # <h3 align=left>**`PAULA DAHER`**</h3>
 
 <p align="center">
-<img src="image.png" height=350>
+<img src="image.png" height=300>
 </p>
 
 # <h3 align=left>**`DESCRIPCIÓN DEL PROYECTO`**</h3>
 
 En este proyecto atravesaremos todas las etapas del ciclo de vida de un proyecto de Machine Learning, obteniendo como resultado final un desarrollo de una api deployada en render a traves de la cual se pueden hacer consultas a los registros de una base de datos de la plataforma Steam. 
-Además se realiza desarrolla un modelo de machine learning para recomendación de videos juegos por similitud del coseno, también accesible a través de la api. 
+Además, se realiza el desarrollo de un modelo de machine learning de recomendación de videos juegos por similitud del coseno, al cual podemos acceder también a través de la api. 
 
 ### El proyecto se divide en dos partes:
 
@@ -55,13 +53,13 @@ Desarrollar un sistema de recomendación basado en la similitud del coseno.
 
 # <h3 align=left>**`PASOS REALIZADOS`**</h3>
 1. Transformaciones de Datos:  
-Se realizó la limpieza y preprocesamiento de los datos:
-Se eliminaron columnas innecesarias.
-Se manejaron valores nulos y datos anidados.
+Se realizó la lectura de los dataset en el formato correcto, se realiza la limpieza y preprocesamiento de los datos de las tres bases sobre las cuales se trabajó. 
+Se eliminaron columnas innecesarias, se manejaron valores nulos y datos anidados entre otras cosas.   
+Las transformaciones se encuentran asentadas en los notebooks [etl_steam](https://github.com/PaulaDaher/Proyecto_MLOps_STEAM/blob/main/EDA_steam.ipynb), [etl_user_items](https://github.com/PaulaDaher/Proyecto_MLOps_STEAM/blob/main/ETL_user_items.ipynb) y [etl_user_reviews](https://github.com/PaulaDaher/Proyecto_MLOps_STEAM/blob/main/ETL_user_reviews.ipynb)
 
 2. Feature Engineering:   
 Se aplicó análisis de sentimiento en las reseñas de usuarios:
-Se creó la columna 'sentiment_analysis' con valores 0 (negativo), 1 (neutral) y 2 (positivo).
+Se creó la columna 'sentiment_analysis' con valores 0 (negativo), 1 (neutral) y 2 (positivo) a traves de la librería NLTK: Análisis de sentimiento.
 Se asignó un valor de 1 a las reseñas ausentes.
 
 3. Desarrollo de API:  
