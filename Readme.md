@@ -5,7 +5,7 @@
 # <h3 align=left>**`PAULA DAHER`**</h3>
 
 <p align="center">
-<img src="image.png" height=500>
+<img src="image.png" height=400>
 </p>
 
 # <h3 align=left>**`DESCRIPCIÓN DEL PROYECTO`**</h3>
