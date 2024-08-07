@@ -83,7 +83,7 @@ A recommendation system based on cosine similarity was developed:
 7. Demonstration Video:  
 A video was created demonstrating the functionality of the API queries and the trained ML model. The video shows how queries are made and briefly explains the project's deployment.
 
-# <h3 align=left>**`TECHNOLOGY STACK`**</h3>
+# <h3 align=left>**`TECH STACK`**</h3>
 - Python: Main programming language.
 - FastAPI: Framework for API development.
 - Pandas: Data manipulation and analysis.
