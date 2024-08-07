@@ -1,6 +1,6 @@
 
 # <h1 align=left> MACHINE LEARNING OPERATIONS (MLOps) </h1>
-# <h3 align=left>**`POL DAJER (PAULA DAHER)`**</h3>
+# <h3 align=left>**`Henry Bootcamp - Academic Experience`**</h3>
 
 <p align="center">
 <img src="image.png" height=300>
